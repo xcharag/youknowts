@@ -386,7 +386,7 @@ export function EditorPage() {
                                     </Button>
                                 </div>
 
-                                <div className="relative w-full aspect-[3/4] bg-background rounded-lg border shadow-sm">
+                                <div className="relative w-full aspect-[3/4] bg-[#60a5fa] rounded-lg border shadow-sm">
                                     <Canvas3D
                                         color={tshirtColor}
                                         textureImage={canvasTexture || undefined}
