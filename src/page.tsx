@@ -1,7 +1,6 @@
 // src/page.tsx
 import { Link } from 'react-router-dom'
 import { ArrowRight, Star } from 'lucide-react'
-import placeholderImage from './assets/placeholder.svg'
 
 export function HomePage() {
     return (
@@ -35,7 +34,7 @@ export function HomePage() {
                         </div>
                         <div className="flex justify-center">
                             <img
-                                src={placeholderImage}
+                                src={'/t5.png'}
                                 alt="Muestra de diseños de camisetas"
                                 className="rounded-lg object-cover w-[500px] h-[500px]"
                             />
@@ -47,7 +46,7 @@ export function HomePage() {
             {/* Featured Designs */}
             <section className="container px-4 md:px-6 py-8">
                 <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between">
                         <h2 className="text-2xl font-bold tracking-tight text-white">Diseños Destacados</h2>
                         <Link to="#"
                               className="flex items-center text-sm font-medium text-blue-400 hover:text-blue-300">
@@ -58,11 +57,11 @@ export function HomePage() {
                         {[1, 2, 3, 4].map((item) => (
                             <div key={item}
                                  className="rounded-lg border bg-background hover:bg-accent/10 transition-colors cursor-pointer"
-                                 onClick={() => window.location.href = '#'} // To use React Router, replace with: navigate('/test')
+                                 onClick={() => window.location.href = '#'}
                             >
                                 <div className="relative aspect-square">
                                     <img
-                                        src={placeholderImage}
+                                        src={`/t${item}.png`}
                                         alt={`Diseño destacado ${item}`}
                                         className="object-cover w-full h-full transition-all hover:scale-105"
                                     />

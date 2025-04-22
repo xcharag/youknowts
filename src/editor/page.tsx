@@ -145,6 +145,34 @@ export function EditorPage() {
         })
     }
 
+    //Download Design
+    const downloadDesign = () => {
+        try {
+            // Use the existing canvas that already has the design
+            const canvas = canvasRef.current;
+            if (!canvas) {
+                console.error("Canvas not available");
+                return;
+            }
+
+            // Convert canvas to data URL
+            const imageData = canvas.toDataURL("image/png");
+
+            // Create a temporary link element
+            const link = document.createElement("a");
+            link.href = imageData;
+            link.download = `tshirt-design-${new Date().getTime()}.png`;
+
+            // Append to body, click to download, then remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error("Error downloading design:", error);
+            alert("Hubo un problema al descargar tu diseño. Por favor intenta de nuevo.");
+        }
+    };
+
     return (
         <div className="container py-4 md:py-8 mx-auto px-2 md:px-4">
             <div className="flex flex-col gap-4 md:gap-6">
@@ -152,19 +180,19 @@ export function EditorPage() {
                     <h1 className="text-2xl md:text-3xl font-bold">Diseñador de Camisetas</h1>
                     <div className="flex flex-wrap items-center gap-2">
                         <Button variant="secondary" size="sm">
-                            <Undo className="mr-2 h-4 w-4" />
+                            <Undo className="mr-2 h-4 w-4"/>
                             Deshacer
                         </Button>
                         <Button variant="secondary" size="sm">
-                            <Redo className="mr-2 h-4 w-4" />
+                            <Redo className="mr-2 h-4 w-4"/>
                             Rehacer
                         </Button>
                         <Button variant="secondary" size="sm">
-                            <Save className="mr-2 h-4 w-4" />
+                            <Save className="mr-2 h-4 w-4"/>
                             Guardar
                         </Button>
                         <Button variant="default" size="sm">
-                            <Share className="mr-2 h-4 w-4" />
+                            <Share className="mr-2 h-4 w-4"/>
                             Compartir
                         </Button>
                     </div>
@@ -176,17 +204,21 @@ export function EditorPage() {
                         <CardContent className="p-3 md:p-4">
                             <Tabs defaultValue="text">
                                 <TabsList className="grid w-full grid-cols-4 bg-muted">
-                                    <TabsTrigger value="text" className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
-                                        <Type className="h-4 w-4" />
+                                    <TabsTrigger value="text"
+                                                 className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
+                                        <Type className="h-4 w-4"/>
                                     </TabsTrigger>
-                                    <TabsTrigger value="images" className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
-                                        <ImageIcon className="h-4 w-4" />
+                                    <TabsTrigger value="images"
+                                                 className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
+                                        <ImageIcon className="h-4 w-4"/>
                                     </TabsTrigger>
-                                    <TabsTrigger value="shapes" className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
-                                        <Shapes className="h-4 w-4" />
+                                    <TabsTrigger value="shapes"
+                                                 className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
+                                        <Shapes className="h-4 w-4"/>
                                     </TabsTrigger>
-                                    <TabsTrigger value="layers" className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
-                                        <Layers className="h-4 w-4" />
+                                    <TabsTrigger value="layers"
+                                                 className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
+                                        <Layers className="h-4 w-4"/>
                                     </TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="text" className="space-y-4 mt-3">
@@ -209,7 +241,8 @@ export function EditorPage() {
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-center">
                                             <Label>Tamaño de Fuente</Label>
-                                            <span className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
+                                            <span
+                                                className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
                                                 {fontSize}px
                                             </span>
                                         </div>
@@ -265,7 +298,7 @@ export function EditorPage() {
                                             {/* Image position control */}
                                             <div className="space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <Label>Posición Vertical</Label>
+                                                    <Label>Posición Horizontal</Label>
                                                     <span
                                                         className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
                                                         {Math.round(imagePosition * 100)}%
@@ -281,7 +314,7 @@ export function EditorPage() {
 
                                             <div className="space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <Label>Posición Horizontal</Label>
+                                                    <Label>Posición Vertical</Label>
                                                     <span
                                                         className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
                                                         {Math.round(imageHorizontalPosition * 100)}%
@@ -378,11 +411,11 @@ export function EditorPage() {
                             <div className="flex flex-col items-center gap-4">
                                 <div className="flex items-center gap-2">
                                     <Button variant="secondary" size="sm">
-                                        <ZoomOut className="h-4 w-4" />
+                                        <ZoomOut className="h-4 w-4"/>
                                     </Button>
                                     <span className="text-sm">100%</span>
                                     <Button variant="secondary" size="sm">
-                                        <ZoomIn className="h-4 w-4" />
+                                        <ZoomIn className="h-4 w-4"/>
                                     </Button>
                                 </div>
 
@@ -417,12 +450,14 @@ export function EditorPage() {
                         <CardContent className="p-3 md:p-4">
                             <Tabs defaultValue="colors">
                                 <TabsList className="grid w-full grid-cols-2 bg-muted">
-                                    <TabsTrigger value="colors" className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
-                                        <Palette className="mr-2 h-4 w-4" />
+                                    <TabsTrigger value="colors"
+                                                 className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
+                                        <Palette className="mr-2 h-4 w-4"/>
                                         Colores
                                     </TabsTrigger>
-                                    <TabsTrigger value="templates" className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
-                                        <Shirt className="mr-2 h-4 w-4" />
+                                    <TabsTrigger value="templates"
+                                                 className="data-[state=active]:bg-[#dbe9ff] data-[state=active]:text-[#1d4ed8]">
+                                        <Shirt className="mr-2 h-4 w-4"/>
                                         Plantillas
                                     </TabsTrigger>
                                 </TabsList>
@@ -434,7 +469,7 @@ export function EditorPage() {
                                                 <div
                                                     key={color}
                                                     className={`aspect-square rounded-md cursor-pointer border ${tshirtColor === color ? 'ring-2 ring-[#1d4ed8]' : 'hover:border-primary'}`}
-                                                    style={{ backgroundColor: color }}
+                                                    style={{backgroundColor: color}}
                                                     onClick={() => setTshirtColor(color)}
                                                 ></div>
                                             ))}
@@ -447,7 +482,7 @@ export function EditorPage() {
                                                 <div
                                                     key={color}
                                                     className={`aspect-square rounded-md cursor-pointer border ${textColor === color ? 'ring-2 ring-[#1d4ed8]' : 'hover:border-primary'}`}
-                                                    style={{ backgroundColor: color }}
+                                                    style={{backgroundColor: color}}
                                                     onClick={() => setTextColor(color)}
                                                 ></div>
                                             ))}
@@ -467,20 +502,20 @@ export function EditorPage() {
                     ref={canvasRef}
                     width={1024}
                     height={1024}
-                    style={{ display: 'none' }}
+                    style={{display: 'none'}}
                 />
 
                 {/* Bottom Action Bar */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-4 gap-4">
-                    <Button variant="secondary">
-                        <Download className="mr-2 h-4 w-4" />
+                    <Button variant="secondary" onClick={downloadDesign}>
+                        <Download className="mr-2 h-4 w-4"/>
                         Descargar Diseño
                     </Button>
                     <div className="flex items-center gap-2">
                         <Link to="/">
                             <Button variant="secondary">Cancelar</Button>
                         </Link>
-                        <Button variant="default">Guardar y Continuar</Button>
+                        <Button variant="default" onClick={downloadDesign}>Guardar y Continuar</Button>
                     </div>
                 </div>
             </div>
