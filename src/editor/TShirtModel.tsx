@@ -10,74 +10,86 @@ interface TShirtModelProps {
     textureImage?: string
 }
 
-export function TShirtModel({ color = '#FFFFFF', textureImage }: TShirtModelProps) {
+// src/editor/TShirtModel.tsx
+export function TShirtModel({ textureImage }: TShirtModelProps) {
     const group = useRef<THREE.Group>(null)
     const [modelError, setModelError] = useState(false)
     const [texture, setTexture] = useState<THREE.Texture | null>(null)
-
-    // Log loading attempt
-    console.log('Attempting to load model from: /tshirt.glb')
+    // Store materials reference to avoid recreation
+    const materialsRef = useRef<Map<THREE.Mesh, THREE.MeshStandardMaterial>>(new Map())
 
     // Load the model
     let modelData = null as unknown as GLTF & ObjectMap
     try {
         const loaded = useGLTF('/tshirt.glb')
         modelData = Array.isArray(loaded) ? loaded[0] : loaded
-        console.log('Model data:', modelData)
     } catch (error) {
         console.error('Error loading model:', error)
         setModelError(true)
     }
 
-    // Load texture if provided
+    // Initialize white materials once when model loads
+    useEffect(() => {
+        if (!modelData?.scene) return;
+
+        materialsRef.current.clear();
+
+        modelData.scene.traverse((node) => {
+            if (node instanceof THREE.Mesh) {
+                // Always create white material
+                const material = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color('#FFFFFF'),
+                    roughness: 0.7,
+                    metalness: 0.1,
+                });
+                node.material = material;
+                materialsRef.current.set(node, material);
+            }
+        });
+
+        return () => {
+            // Clean up materials
+            materialsRef.current.forEach(material => material.dispose());
+            materialsRef.current.clear();
+        };
+    }, [modelData?.scene]);
+
+    // Handle texture loading and application
     useEffect(() => {
         if (textureImage) {
-            const loader = new THREE.TextureLoader()
-            loader.load(textureImage,
+            if (texture) texture.dispose();
+
+            new THREE.TextureLoader().load(
+                textureImage,
                 (loadedTexture) => {
-                    loadedTexture.flipY = true
-                    setTexture(loadedTexture)
-                    console.log('Texture loaded successfully')
+                    loadedTexture.flipY = false;
+                    loadedTexture.wrapS = THREE.ClampToEdgeWrapping;
+                    loadedTexture.wrapT = THREE.ClampToEdgeWrapping;
+                    loadedTexture.anisotropy = 16;
+                    setTexture(loadedTexture);
+
+                    // Apply texture to existing materials
+                    materialsRef.current.forEach(material => {
+                        material.map = loadedTexture;
+                        material.needsUpdate = true;
+                    });
                 },
                 undefined,
                 (error) => console.error('Error loading texture:', error)
-            )
-        } else {
-            setTexture(null)
+            );
         }
-    }, [textureImage])
 
-// Create a new material with the selected color and texture
-    useEffect(() => {
-        if (modelData?.scene) {
-            modelData.scene.traverse((node: THREE.Object3D) => {
-                if (node instanceof THREE.Mesh) {
-                    const material = new THREE.MeshStandardMaterial({
-                        color: new THREE.Color(color),
-                        roughness: 0.7,
-                        metalness: 0.1,
-                    })
-
-                    // Apply texture if available
-                    if (texture) {
-                        material.map = texture
-                        material.needsUpdate = true
-                    }
-
-                    node.material = material
-                    console.log('Applied material to:', node.name)
-                }
-            })
-        }
-    }, [color, texture, modelData?.scene])
+        return () => {
+            if (texture) texture.dispose();
+        };
+    }, [textureImage]);
 
     return (
         <group ref={group}>
             {modelError ? (
-                // Fallback box if model fails to load
                 <mesh>
                     <boxGeometry args={[1, 1.5, 0.5]} />
-                    <meshStandardMaterial color={color} map={texture || undefined} />
+                    <meshStandardMaterial color="#FFFFFF" map={texture || undefined} />
                 </mesh>
             ) : (
                 modelData?.scene ? <primitive object={modelData.scene} scale={1} /> : null
@@ -86,5 +98,5 @@ export function TShirtModel({ color = '#FFFFFF', textureImage }: TShirtModelProp
     )
 }
 
-// Try to preload the model
+// Preload the model
 useGLTF.preload('/tshirt.glb')

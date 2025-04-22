@@ -31,8 +31,11 @@ export function EditorPage() {
     // Reference to the canvas for image generation
     const canvasRef = useRef<HTMLCanvasElement>(null)
 
-    const [imagePosition, setImagePosition] = useState(0.5); // Vertical position (0-1)
-    const [imageScale, setImageScale] = useState(0.5); // Image size (0-1)
+// Change these initial values
+    const [imagePosition, setImagePosition] = useState(0.5); // Center vertically
+    const [imageHorizontalPosition, setImageHorizontalPosition] = useState(0.5); // Center horizontally
+    const [imageRotation, setImageRotation] = useState(0); // 0 degrees rotation
+    const [imageScale, setImageScale] = useState(0.2); // 20% size instead of 50%
 
     // Handle text addition
     const addText = () => {
@@ -69,47 +72,68 @@ export function EditorPage() {
     // Update canvas texture whenever elements change
     useEffect(() => {
         updateCanvasTexture()
-    }, [textElements, uploadedImage, view, imagePosition, imageScale])
+    }, [textElements, uploadedImage, view, imagePosition, imageHorizontalPosition, imageScale, imageRotation])
 
     // Generate texture from canvas
     const updateCanvasTexture = () => {
-        const canvas = canvasRef.current
-        if (!canvas) return
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        // Clear canvas with transparent background
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0)'; // Transparent background
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Draw uploaded image if available
         if (uploadedImage) {
-            const img = new Image()
+            const img = new Image();
             img.onload = () => {
-                // Calculate size based on scale
-                const scale = Math.min(canvas.width / img.width, canvas.height / img.height) * imageScale * 1.5
-                const width = img.width * scale
-                const height = img.height * scale
+                // Clear canvas again before drawing
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Position horizontally centered, but vertically based on imagePosition
-                const x = (canvas.width - width) / 2
-                const y = canvas.height * imagePosition - height / 2
+                // Calculate dimensions based on the t-shirt print area
+                const maxWidth = canvas.width * 0.6;
+                const scale = imageScale * 1.5;
 
-                ctx.drawImage(img, x, y, width, height)
+                // Calculate dimensions
+                const width = Math.min(img.width, maxWidth) * scale;
+                const height = (width / img.width) * img.height;
+
+                // Position: fixed to use correct vertical and horizontal positioning
+                const x = (canvas.width * 0.5) + (canvas.width * 0.4 * (imageHorizontalPosition - 0.5));
+                const y = (canvas.height * 0.3) + (canvas.height * 0.4 * imagePosition);
+
+                // Save context state
+                ctx.save();
+
+                // Move to the position where we want the center of the image
+                ctx.translate(x, y);
+
+                // Apply rotation (convert degrees to radians)
+                ctx.rotate(imageRotation * Math.PI / 180);
+
+                // Draw the image centered at the rotation point
+                ctx.drawImage(img, -width / 2, -height / 2, width, height);
+
+                // Restore context state
+                ctx.restore();
 
                 // Draw text elements
-                drawTextElements(ctx)
+                drawTextElements(ctx);
 
                 // Update texture
-                setCanvasTexture(canvas.toDataURL())
-            }
-            img.src = uploadedImage
+                setCanvasTexture(canvas.toDataURL());
+            };
+            img.src = uploadedImage;
         } else {
             // Just draw text elements
-            drawTextElements(ctx)
-            setCanvasTexture(canvas.toDataURL())
+            drawTextElements(ctx);
+            setCanvasTexture(canvas.toDataURL());
         }
-    }
+    };
 
     // Draw text elements on canvas
     const drawTextElements = (ctx: CanvasRenderingContext2D) => {
@@ -242,9 +266,10 @@ export function EditorPage() {
                                             <div className="space-y-2">
                                                 <div className="flex justify-between items-center">
                                                     <Label>Posición Vertical</Label>
-                                                    <span className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
-                        {Math.round(imagePosition * 100)}%
-                    </span>
+                                                    <span
+                                                        className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
+                                                        {Math.round(imagePosition * 100)}%
+                                                    </span>
                                                 </div>
                                                 <Slider
                                                     value={[imagePosition * 100]}
@@ -254,11 +279,45 @@ export function EditorPage() {
                                                 />
                                             </div>
 
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between items-center">
+                                                    <Label>Posición Horizontal</Label>
+                                                    <span
+                                                        className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
+                                                        {Math.round(imageHorizontalPosition * 100)}%
+                                                    </span>
+                                                </div>
+                                                <Slider
+                                                    value={[imageHorizontalPosition * 100]}
+                                                    max={100}
+                                                    step={1}
+                                                    onValueChange={(value) => setImageHorizontalPosition(value[0] / 100)}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between items-center">
+                                                    <Label>Rotación</Label>
+                                                    <span
+                                                        className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
+                                                        {Math.round(imageRotation)}°
+                                                    </span>
+                                                </div>
+                                                <Slider
+                                                    value={[imageRotation]}
+                                                    min={-180}
+                                                    max={180}
+                                                    step={1}
+                                                    onValueChange={(value) => setImageRotation(value[0])}
+                                                />
+                                            </div>
+
                                             {/* Image size control */}
                                             <div className="space-y-2">
                                                 <div className="flex justify-between items-center">
                                                     <Label>Tamaño</Label>
-                                                    <span className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
+                                                    <span
+                                                        className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
                         {Math.round(imageScale * 100)}%
                     </span>
                                                 </div>

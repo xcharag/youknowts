@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import { useLocation } from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import youknowlogo from '/youknowlogo.svg'
 
 interface NavItem {
@@ -31,9 +31,8 @@ export function Navbar() {
                                 {navigation.map((item) => {
                                     const isActive = location.pathname === item.href
                                     return (
-                                        <a
+                                        <Link to={item.href}
                                             key={item.label}
-                                            href={item.href}
                                             className={`rounded-md px-3 py-2 text-sm font-medium ${
                                                 isActive
                                                     ? 'text-white font-bold bg-accent/50'
@@ -41,7 +40,7 @@ export function Navbar() {
                                             }`}
                                         >
                                             {item.label}
-                                        </a>
+                                        </Link>
                                     )
                                 })}
                             </div>
