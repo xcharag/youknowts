@@ -17,7 +17,7 @@ export function Canvas3D({ color = '#FFFFFF', textureImage, view = 'front' }: Ca
 
     return (
         <Canvas
-            camera={{ position: [0, 0, 3.5], fov: 50 }}
+            camera={{ position: [0, 0, 6], fov: 25 }}
             shadows
             frameloop="demand"  // Render only when needed
             dpr={[1, 2]}        // Optimize pixel ratio
@@ -29,13 +29,20 @@ export function Canvas3D({ color = '#FFFFFF', textureImage, view = 'front' }: Ca
 
             {/* Model */}
             <Suspense fallback={<mesh><boxGeometry args={[1, 1.5, 0.05]} /><meshStandardMaterial color="gray" /></mesh>}>
-                <group rotation={[0, rotation[1], 0]} position={[0, 0, 0]}>
+                <group rotation={[0, rotation[1], 0]} position={[0, -1.2, 0]}>
                     <TShirtModel color={color} textureImage={textureImage} />
                 </group>
                 <Environment preset="city" />
             </Suspense>
 
-            <OrbitControls makeDefault minPolarAngle={0} maxPolarAngle={Math.PI / 1.8} />
+            <OrbitControls
+                makeDefault
+                minPolarAngle={0}
+                maxPolarAngle={Math.PI / 1.8}
+                target={[0, -0.5, 0]} // Look at the center of the t-shirt
+                enableDamping
+                dampingFactor={0.05}
+            />
         </Canvas>
     )
 }

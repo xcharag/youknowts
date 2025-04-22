@@ -19,7 +19,7 @@ export function EditorPage() {
     const [fontSize, setFontSize] = useState(16)
     const [fontFamily, setFontFamily] = useState('arial')
     const [tshirtColor, setTshirtColor] = useState('#FFFFFF')
-    const [textColor, setTextColor] = useState('#000000')
+    const [textColor, setTextColor] = useState('#FFFFFF')
     const [textInput, setTextInput] = useState('')
     const [textElements, setTextElements] = useState<{text: string, font: string, size: number, color: string}[]>([])
     const [view, setView] = useState<'front' | 'back'>('front')
