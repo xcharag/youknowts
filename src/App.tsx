@@ -4,6 +4,7 @@ import { Navbar } from '@/components/navbar'
 import { HomePage } from '@/page'
 import { EditorPage } from '@/editor/page'
 import { CommunityPage } from '@/community/page'
+import { TestPage } from '@/test/page'
 import './App.css'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/editor" element={<EditorPage />} />
                 <Route path="/community" element={<CommunityPage />} />
+                <Route path="/test" element={<TestPage />} />
             </Routes>
         </div>
     )
