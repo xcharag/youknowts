@@ -4,13 +4,19 @@ import { OrbitControls, Environment, Grid } from '@react-three/drei'
 import { TShirtModel } from './TShirtModel'
 import { Suspense } from 'react'
 
-export function Canvas3D({ color = '#FFFFFF', view = 'front' }) {
+interface Canvas3DProps {
+    color?: string
+    textureImage?: string
+    view?: 'front' | 'back'
+}
+
+export function Canvas3D({ color = '#FFFFFF', textureImage, view = 'front' }: Canvas3DProps) {
     // Calculate rotation based on view
     const rotation = view === 'front' ? [0, 0, 0] : [0, Math.PI, 0]
 
     return (
         <Canvas
-            camera={{ position: [0, 0, 2.5], fov: 50 }}
+            camera={{ position: [0, 0,.5], fov: 50 }}
             shadows
         >
             {/* Lighting */}
@@ -25,7 +31,7 @@ export function Canvas3D({ color = '#FFFFFF', view = 'front' }) {
             {/* Model */}
             <Suspense fallback={null}>
                 <group rotation={[0, rotation[1], 0]} position={[0, 0, 0]}>
-                    <TShirtModel color={color} />
+                    <TShirtModel color={color} textureImage={textureImage} />
                 </group>
                 <Environment preset="city" />
             </Suspense>

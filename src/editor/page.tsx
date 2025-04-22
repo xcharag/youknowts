@@ -31,6 +31,9 @@ export function EditorPage() {
     // Reference to the canvas for image generation
     const canvasRef = useRef<HTMLCanvasElement>(null)
 
+    const [imagePosition, setImagePosition] = useState(0.5); // Vertical position (0-1)
+    const [imageScale, setImageScale] = useState(0.5); // Image size (0-1)
+
     // Handle text addition
     const addText = () => {
         if (!textInput.trim()) return
@@ -66,7 +69,7 @@ export function EditorPage() {
     // Update canvas texture whenever elements change
     useEffect(() => {
         updateCanvasTexture()
-    }, [textElements, uploadedImage, view])
+    }, [textElements, uploadedImage, view, imagePosition, imageScale])
 
     // Generate texture from canvas
     const updateCanvasTexture = () => {
@@ -83,11 +86,16 @@ export function EditorPage() {
         if (uploadedImage) {
             const img = new Image()
             img.onload = () => {
-                const scale = Math.min(canvas.width / img.width, canvas.height / img.height) * 0.8
-                const x = (canvas.width - img.width * scale) / 2
-                const y = (canvas.height - img.height * scale) / 2
+                // Calculate size based on scale
+                const scale = Math.min(canvas.width / img.width, canvas.height / img.height) * imageScale * 1.5
+                const width = img.width * scale
+                const height = img.height * scale
 
-                ctx.drawImage(img, x, y, img.width * scale, img.height * scale)
+                // Position horizontally centered, but vertically based on imagePosition
+                const x = (canvas.width - width) / 2
+                const y = canvas.height * imagePosition - height / 2
+
+                ctx.drawImage(img, x, y, width, height)
 
                 // Draw text elements
                 drawTextElements(ctx)
@@ -214,20 +222,54 @@ export function EditorPage() {
                                         />
                                     </div>
                                     {uploadedImage && (
-                                        <div className="border rounded-md p-2">
-                                            <img
-                                                src={uploadedImage}
-                                                alt="Uploaded"
-                                                className="w-full h-auto max-h-40 object-contain"
-                                            />
-                                            <Button
-                                                className="w-full mt-2"
-                                                variant="destructive"
-                                                onClick={() => setUploadedImage(null)}
-                                            >
-                                                Eliminar
-                                            </Button>
-                                        </div>
+                                        <>
+                                            <div className="border rounded-md p-2">
+                                                <img
+                                                    src={uploadedImage}
+                                                    alt="Uploaded"
+                                                    className="w-full h-auto max-h-40 object-contain"
+                                                />
+                                                <Button
+                                                    className="w-full mt-2"
+                                                    variant="destructive"
+                                                    onClick={() => setUploadedImage(null)}
+                                                >
+                                                    Eliminar
+                                                </Button>
+                                            </div>
+
+                                            {/* Image position control */}
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between items-center">
+                                                    <Label>Posición Vertical</Label>
+                                                    <span className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
+                        {Math.round(imagePosition * 100)}%
+                    </span>
+                                                </div>
+                                                <Slider
+                                                    value={[imagePosition * 100]}
+                                                    max={100}
+                                                    step={1}
+                                                    onValueChange={(value) => setImagePosition(value[0] / 100)}
+                                                />
+                                            </div>
+
+                                            {/* Image size control */}
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between items-center">
+                                                    <Label>Tamaño</Label>
+                                                    <span className="text-sm font-medium text-[#1d4ed8] bg-[#dbe9ff] px-2 py-0.5 rounded">
+                        {Math.round(imageScale * 100)}%
+                    </span>
+                                                </div>
+                                                <Slider
+                                                    value={[imageScale * 100]}
+                                                    max={100}
+                                                    step={1}
+                                                    onValueChange={(value) => setImageScale(value[0] / 100)}
+                                                />
+                                            </div>
+                                        </>
                                     )}
                                 </TabsContent>
                                 <TabsContent value="shapes" className="space-y-4 mt-3">
